@@ -60,5 +60,10 @@ export function useHistory() {
     });
   }, []);
 
-  return { history, save, remove };
+  const clear = useCallback(() => {
+    setHistory([]);
+    try { localStorage.removeItem(STORAGE_KEY); } catch {}
+  }, []);
+
+  return { history, save, remove, clear };
 }
