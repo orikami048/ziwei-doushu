@@ -33,7 +33,13 @@ export async function generateMetadata({ params }: { params: Promise<{ star: str
   const star = SLUG_TO_STAR[slug];
   if (!star) return {};
   const data = getKnowledge(star, topic as TopicKey);
-  if (!data.exists) return {};
+  if (!data.exists) {
+    return {
+      title: `${star}入${data.palaceName}宫 · ${data.topicLabel} · 倪海夏体系`,
+      description: STAR_BRIEF_SEO[star] || `${star}入${data.palaceName}宫的紫微斗数专题`,
+      keywords: ['紫微斗数', '倪海夏', star, data.palaceName, data.topicLabel],
+    };
+  }
 
   const title = `${star}入${data.palaceName}宫 · ${data.topicLabel} · 倪海夏体系详解`;
   const description = data.parsed.dingdiao
@@ -64,12 +70,16 @@ export default async function KnowledgePage({ params }: { params: Promise<{ star
   const star = SLUG_TO_STAR[slug];
   if (!star) notFound();
   const data = getKnowledge(star, topic as TopicKey);
-  if (!data.exists) notFound();
+  const contentExists = data.exists;
 
   // 同主星其他 topic
-  const otherTopicsForStar = ALL_TOPICS.filter(t => t !== topic && getKnowledge(star, t).exists);
+  const otherTopicsForStar = contentExists
+    ? ALL_TOPICS.filter(t => t !== topic && getKnowledge(star, t).exists)
+    : ALL_TOPICS.filter(t => t !== topic);
   // 同 topic 其他主星
-  const otherStarsForTopic = ALL_STARS.filter(s => s !== star && getKnowledge(s, topic as TopicKey).exists);
+  const otherStarsForTopic = contentExists
+    ? ALL_STARS.filter(s => s !== star && getKnowledge(s, topic as TopicKey).exists)
+    : ALL_STARS.filter(s => s !== star);
 
   // JSON-LD
   const jsonLd = {
@@ -136,7 +146,16 @@ export default async function KnowledgePage({ params }: { params: Promise<{ star
         </header>
 
         {/* 内容 4 段 */}
-        {data.parsed.dingdiao && (
+        {!contentExists && (
+          <Section title="内容整理中" gradient>
+            <p style={{ fontSize: '15px', color: 'var(--tx-0)', lineHeight: 1.9, letterSpacing: '0.02em' }}>
+              {star}入{data.palaceName}宫 · {data.topicLabel} 的完整论断内容由原作者商业版提供，本开源版暂未包含，
+              当前可查看 {star} 星基础资料。如需完整解读，可起盘查看自己的命盘。
+            </p>
+          </Section>
+        )}
+
+        {contentExists && data.parsed.dingdiao && (
           <Section title="一句话定调" gradient>
             <p style={{ fontSize: '17px', color: 'var(--tx-0)', lineHeight: 1.9, fontWeight: 500, letterSpacing: '0.04em' }}>
               {data.parsed.dingdiao}
@@ -144,7 +163,7 @@ export default async function KnowledgePage({ params }: { params: Promise<{ star
           </Section>
         )}
 
-        {data.parsed.lundian && (
+        {contentExists && data.parsed.lundian && (
           <Section title="核心论断">
             <div style={{ fontSize: '15px', color: 'var(--tx-0)', lineHeight: 2, letterSpacing: '0.02em', whiteSpace: 'pre-wrap' }}>
               {data.parsed.lundian}
@@ -152,7 +171,7 @@ export default async function KnowledgePage({ params }: { params: Promise<{ star
           </Section>
         )}
 
-        {data.parsed.yiju && (
+        {contentExists && data.parsed.yiju && (
           <Section title="命盘依据">
             <div style={{ fontSize: '14px', color: 'var(--tx-0)', lineHeight: 2, letterSpacing: '0.02em', whiteSpace: 'pre-wrap' }}>
               {data.parsed.yiju}
@@ -160,7 +179,7 @@ export default async function KnowledgePage({ params }: { params: Promise<{ star
           </Section>
         )}
 
-        {data.parsed.chuchu && (
+        {contentExists && data.parsed.chuchu && (
           <Section title="经典出处" minimal>
             <div style={{ fontSize: '13px', color: 'var(--tx-2)', lineHeight: 2, letterSpacing: '0.02em', whiteSpace: 'pre-wrap' }}>
               {data.parsed.chuchu}
