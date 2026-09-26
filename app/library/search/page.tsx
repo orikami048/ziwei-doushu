@@ -5,6 +5,8 @@
 import Link from 'next/link';
 import { searchClassics, getParagraphById } from '@/lib/classics';
 
+export const runtime = 'edge';
+
 export const metadata = {
   title: '搜索 · 古籍原典库',
 };

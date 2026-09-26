@@ -25,6 +25,8 @@ import {
   SLUG_TO_STAR,
 } from '@/lib/seo/knowledge';
 
+export const runtime = 'edge';
+
 // 允许动态参数：如果某个 star/topic 组合不在 generateStaticParams 列表中
 // 也允许运行时按需渲染，避免中文 URL 编码问题导致 404
 export const dynamicParams = false;
