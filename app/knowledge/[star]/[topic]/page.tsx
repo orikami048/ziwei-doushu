@@ -27,15 +27,6 @@ import {
 
 export const runtime = 'edge';
 
-// 允许动态参数：如果某个 star/topic 组合不在 generateStaticParams 列表中
-// 也允许运行时按需渲染，避免中文 URL 编码问题导致 404
-export const dynamicParams = false;
-
-export async function generateStaticParams() {
-  const routes = getAllKnowledgeRoutes();
-  // URL 用拼音 slug 替代中文，避开 Vercel/CDN 中文路由边界问题
-  return routes.map(r => ({ star: r.slug, topic: r.topic }));
-}
 
 export async function generateMetadata({ params }: { params: Promise<{ star: string; topic: string }> }) {
   const { star: slug, topic } = await params;

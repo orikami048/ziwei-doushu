@@ -6,8 +6,6 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ALL_BOOKS, getBookBySlug } from '@/lib/classics';
 
-export const runtime = 'edge';
-
 export async function generateStaticParams() {
   return ALL_BOOKS.map(b => ({ book: b.slug }));
 }
