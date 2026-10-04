@@ -157,7 +157,7 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
     border: `1px solid ${inputBorder}`,
     color: inputClr,
     borderRadius: '10px',
-    padding: '10px 12px',
+    padding: '9px 10px',
     fontSize: '13px',
     width: '100%',
     outline: 'none',
@@ -197,10 +197,11 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      style={{ background: cardBg, border: `1px solid ${cardBorder}`, borderRadius: '18px', padding: '28px 26px', boxShadow: isDark ? '0 10px 40px rgba(0,0,0,0.35)' : '0 6px 28px rgba(0,0,0,0.05)' }}
+      className="p-4 sm:p-7 rounded-2xl w-full"
+      style={{ background: cardBg, border: `1px solid ${cardBorder}`, boxShadow: isDark ? '0 10px 40px rgba(0,0,0,0.35)' : '0 6px 28px rgba(0,0,0,0.05)' }}
     >
       {/* 标题 */}
-      <h3 style={{ color: goldText, fontSize: '13px', letterSpacing: '0.35em', textAlign: 'center', marginBottom: '22px', fontWeight: 500 }}>
+      <h3 style={{ color: goldText, fontSize: '13px', letterSpacing: '0.35em', textAlign: 'center', marginBottom: '18px', fontWeight: 500 }}>
         —— 输入生辰八字 ——
       </h3>
 
@@ -262,7 +263,7 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
             </motion.div>
           </AnimatePresence>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
+          <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
             <div>
               <select
                 value={form.year}
@@ -312,7 +313,7 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
       {/* ── 出生地点 ── */}
       <div style={{ marginBottom: '16px' }}>
         <label style={{ display: 'block', fontSize: '12px', color: labelClr, marginBottom: '6px' }}>出生地点（用于真太阳时校正）</label>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+        <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
           <select
             value={form.province}
             onChange={e => handleProvince(e.target.value)}
@@ -368,7 +369,7 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
       <div style={{ marginBottom: '16px' }}>
         <label style={{ display: 'block', fontSize: '12px', color: labelClr, marginBottom: '6px' }}>出生时间（北京时间）</label>
         <div style={{ borderRadius: '12px', padding: '12px', background: panelBg, border: `1px solid ${panelBorder}`, opacity: form.unknownTime ? 0.45 : 1, pointerEvents: form.unknownTime ? 'none' : 'auto', transition: 'opacity 0.2s' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '8px' }}>
+          <div className="grid grid-cols-2 gap-1.5 sm:gap-2 mb-2">
             <select
               value={form.clockHour}
               onChange={e => setForm({ ...form, clockHour: e.target.value })}
@@ -417,7 +418,7 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
       {/* ── 性别 ── */}
       <div style={{ marginBottom: '22px' }}>
         <label style={{ display: 'block', fontSize: '12px', color: labelClr, marginBottom: '6px' }}>性别</label>
-        <div style={{ display: 'flex', gap: '10px' }}>
+        <div className="grid grid-cols-2 gap-2 sm:gap-2.5">
           {(['male', 'female'] as const).map(g => {
             const active = form.gender === g;
             const isMale = g === 'male';
@@ -456,11 +457,11 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
         whileTap={loading ? {} : { scale: 0.98 }}
         style={{
           width: '100%',
-          padding: '15px',
+          padding: '13px 16px',
           borderRadius: '12px',
           fontSize: '14px',
           fontWeight: 600,
-          letterSpacing: '0.12em',
+          letterSpacing: '0.08em',
           border: 'none',
           cursor: loading ? 'not-allowed' : 'pointer',
           background: loading

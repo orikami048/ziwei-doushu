@@ -201,9 +201,8 @@ export default function HemingPage() {
           </p>
         </div>
 
-        {/* 双栏表单 */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '24px' }}
-          className="heming-grid">
+        {/* 双方表单：手机单列堆叠 / 桌面双栏并列 */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
           {/* 甲方 */}
           <div style={cardStyle}>
             <span style={labelStyle}>甲方 — A</span>
