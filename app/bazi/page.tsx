@@ -2,11 +2,10 @@
 import { useState, useRef } from 'react';
 import Link from 'next/link';
 import BirthForm, { type BirthFormState } from '@/components/BirthForm';
-import ChartBoard from '@/components/ChartBoard';
 import BaZiBoard from '@/components/BaZiBoard';
 import InsightPanel from '@/components/InsightPanel';
-import { generateChart } from '@/lib/ziwei/algorithm';
 import { calculateBaZi } from '@/lib/bazi/engine';
+import { generateChart } from '@/lib/ziwei/algorithm';
 import type { BirthInfo, ZiweiChart, Palace } from '@/lib/ziwei/types';
 import type { BaZiChart } from '@/lib/bazi/types';
 import { useHistory, type HistoryEntry } from '@/lib/ziwei/history';
@@ -14,10 +13,9 @@ import { formToBirthInfo } from '@/lib/ziwei/share';
 import { useTheme } from '@/components/ThemeProvider';
 
 /**
- * 命盘页 —— 全球化东方命理双引擎（紫微斗数 + 四柱八字）
- * 未起盘：顶部响应式导航 + 手机单列优先表单/桌面双栏 + 最近命盘
- * 已起盘：桌面【紫微斗数 ☯】与【四柱八字 🔮】自由切换 + 右侧【AI深度解读 ✦】
- *         移动端三合一【☯ 紫微】/【🔮 八字】/【✦ 解读】无缝切换
+ * 八字排盘独立专业工作台 —— 独立四柱八字产品线 (/bazi)
+ * 传承四库古籍权威经籍（《穷通宝鉴》《滴天髓》《三命通会》《八字提要》）
+ * 包含：问真级四柱全息矩阵、十二长生星运、柱位神煞矩阵、原局刑冲克害合透视、五行雷达、十年大运
  */
 
 const SHICHEN_NAMES = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
@@ -42,27 +40,21 @@ function timeAgo(ts: number): string {
   return `${Math.floor(d / 30)}月前`;
 }
 
-export default function ChartPage() {
+export default function BaZiPage() {
   const { theme, toggle } = useTheme();
   const isDark = theme === 'dark';
 
-  const [chart, setChart] = useState<ZiweiChart | null>(null);
   const [bazi, setBazi] = useState<BaZiChart | null>(null);
-  const [selectedPalace, setSelectedPalace] = useState<Palace | null>(null);
-
-  // 桌面端左侧视窗模式：'ziwei' (4x4 罗盘) | 'bazi' (四柱全息)
-  const [boardMode, setBoardMode] = useState<'ziwei' | 'bazi'>('ziwei');
-  // 移动端视图切换 Tab：'ziwei' | 'bazi' | 'insight'
-  const [mobileTab, setMobileTab] = useState<'ziwei' | 'bazi' | 'insight'>('ziwei');
+  const [chart, setChart] = useState<ZiweiChart | null>(null);
+  const [mobileTab, setMobileTab] = useState<'bazi' | 'insight'>('bazi');
 
   const { history, save, clear } = useHistory();
   const formRef = useRef<BirthFormState | null>(null);
 
-  const computeDualCharts = (info: BirthInfo) => {
-    const generatedChart = generateChart(info);
+  const computeCharts = (info: BirthInfo) => {
     const clockHour = info.origInput?.clockHour ?? (info.hour * 2);
     const clockMinute = info.origInput?.clockMinute ?? 0;
-    const generatedBazi = calculateBaZi({
+    const baziData = calculateBaZi({
       year: info.origInput?.year ?? info.year,
       month: info.origInput?.month ?? info.month,
       day: info.origInput?.day ?? info.day,
@@ -71,23 +63,22 @@ export default function ChartPage() {
       gender: info.gender,
       longitude: info.longitude,
     });
-
-    setChart(generatedChart);
-    setBazi(generatedBazi);
-    setBoardMode('ziwei');
-    setMobileTab('ziwei');
+    const ziweiData = generateChart(info);
+    setBazi(baziData);
+    setChart(ziweiData);
+    setMobileTab('bazi');
   };
 
   const handleSubmit = (info: BirthInfo) => {
     if (formRef.current) save(formRef.current);
-    computeDualCharts(info);
+    computeCharts(info);
   };
 
   const handleHistoryClick = (entry: HistoryEntry) => {
     const bi = formToBirthInfo(entry.form);
     if (bi) {
       save(entry.form);
-      computeDualCharts(bi);
+      computeCharts(bi);
     }
   };
 
@@ -100,13 +91,12 @@ export default function ChartPage() {
   const textSub = isDark ? '#9db0d0' : '#8a8a8a';
   const textFaint = isDark ? 'rgba(240,246,255,0.4)' : '#b8b8b8';
   const gold = isDark ? '#d4a843' : '#b08a2c';
-  const accent = isDark ? 'rgba(212,168,67,0.2)' : 'rgba(176,138,44,0.12)';
 
-  // ── 未起盘：响应式输入 UI ──
-  if (!chart || !bazi) {
+  // ── 未排盘：起盘界面 ──
+  if (!bazi || !chart) {
     return (
       <div style={{ minHeight: '100vh', background: bg, fontFamily: '"PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif' }}>
-        {/* ── 顶部导航 ── */}
+        {/* 顶部独立导航 */}
         <nav style={{
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           padding: '0 16px', height: '52px',
@@ -115,11 +105,11 @@ export default function ChartPage() {
         }} className="sm:px-7">
           <div className="flex items-center gap-3 sm:gap-6 overflow-x-auto no-scrollbar">
             <Link href="/" style={{ fontSize: '14px', fontWeight: 700, letterSpacing: '0.12em', color: gold, textDecoration: 'none' }} className="shrink-0">
-              东方双擎命理
+              四柱八字工作台
             </Link>
             <div className="flex items-center gap-3 sm:gap-5 shrink-0">
-              <NavItem href="/chart" isDark={isDark} active>紫微排盘</NavItem>
-              <NavItem href="/bazi" isDark={isDark} active={false}>八字排盘</NavItem>
+              <NavItem href="/bazi" isDark={isDark} active>八字排盘</NavItem>
+              <NavItem href="/chart" isDark={isDark} active={false}>紫微命盘</NavItem>
               <NavItem href="/heming" isDark={isDark} active={false}>合盘</NavItem>
               <NavItem href="/knowledge" isDark={isDark} active={false}>学术中心</NavItem>
             </div>
@@ -140,24 +130,24 @@ export default function ChartPage() {
           </div>
         </nav>
 
-        {/* ── 主体区域：桌面双列 / 移动单列 ── */}
+        {/* 主体区域 */}
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-12">
           <div className="grid grid-cols-1 lg:grid-cols-[5fr_7fr] gap-6 sm:gap-12 items-start">
-            {/* 桌面端左侧介绍 + 历史记录 */}
+            {/* 桌面端左侧介绍 */}
             <div className="hidden lg:flex flex-col gap-8">
               <div>
                 <div style={{ fontSize: '11px', letterSpacing: '0.28em', color: textFaint, marginBottom: '10px' }}>
-                  01 / DUAL-ENGINE ASTROLOGY
+                  BAZI · FOUR PILLARS WORKSPACE
                 </div>
                 <h1 style={{ fontSize: '36px', fontWeight: 700, lineHeight: 1.25, color: textMain, margin: '0 0 14px', letterSpacing: '0.02em' }}>
-                  紫微斗数 & 四柱八字
+                  四柱八字全息排盘
                 </h1>
                 <p style={{ fontSize: '14px', lineHeight: 1.8, color: textSub, margin: 0 }}>
-                  融合倪海夏《天纪》正宗紫微斗数与《子平真诠》《滴天髓》四柱八字权威体系。输入公历或农历生辰，一次性生成【十二宫全息星盘】与【五行十神元神图谱】。
+                  权威四柱八字排盘系统。涵盖天干地支、藏干十神、星运自坐十二长生、空亡纳音、柱位专属神煞矩阵、原局刑冲克害合透视、五行面积雷达与《穷通宝鉴》《滴天髓》《三命通会》《八字提要》四库经籍原文全息考证。
                 </p>
               </div>
 
-              {/* 最近命盘历史 */}
+              {/* 历史命盘卡片 */}
               {history.length > 0 && (
                 <div style={{ background: cardBg, border: `1px solid ${cardBorder}`, borderRadius: '16px', padding: '20px 22px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
@@ -209,16 +199,16 @@ export default function ChartPage() {
               )}
             </div>
 
-            {/* 移动端顶部标题 */}
+            {/* 移动端标题 */}
             <div className="lg:hidden mb-4 text-center">
               <div style={{ fontSize: '10px', letterSpacing: '0.28em', color: textFaint, marginBottom: '4px' }}>
-                01 / DUAL-ENGINE METAPHYSICS
+                BAZI WORKSPACE
               </div>
               <h1 style={{ fontSize: '24px', fontWeight: 700, color: textMain, margin: '0 0 4px', letterSpacing: '0.03em' }}>
-                紫微斗数 & 四柱八字
+                四柱八字全息排盘
               </h1>
               <p style={{ fontSize: '12px', color: textSub, margin: 0 }}>
-                输入出生生辰，系统一次性推演紫微十二宫罗盘与八字五行元神
+                问真级四柱全息矩阵、神煞、五行能量与四库古籍引证
               </p>
             </div>
 
@@ -232,7 +222,7 @@ export default function ChartPage() {
     );
   }
 
-  // ── 已起盘：命盘 + 解读 ──
+  // ── 已排盘：八字全息工作台展示 ──
   return (
     <div style={{ minHeight: '100vh', background: bg, fontFamily: '"PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif' }}>
       {/* 顶部工具栏 */}
@@ -245,7 +235,7 @@ export default function ChartPage() {
         <div className="flex items-center gap-3">
           <button
             type="button"
-            onClick={() => { setChart(null); setBazi(null); setSelectedPalace(null); }}
+            onClick={() => { setBazi(null); setChart(null); }}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg transition-colors cursor-pointer border"
             style={{
               borderColor: isDark ? 'rgba(255,255,255,0.15)' : '#d1d5db',
@@ -254,86 +244,54 @@ export default function ChartPage() {
             }}
           >
             <span>←</span>
-            <span>重新起盘</span>
+            <span>重新排盘</span>
           </button>
           <span className="hidden sm:inline-block text-xs font-semibold tracking-wider" style={{ color: gold }}>
-            {chart.birthInfo.name ? `${chart.birthInfo.name} 的双擎命盘` : '东方双擎命盘'}
+            {bazi.dayMaster.stemCn}{bazi.dayMaster.elementCn} · {bazi.dayMaster.archetypeCn}
           </span>
         </div>
 
-        {/* 桌面端双引擎切换器 (紫微 ☯ / 八字 🔮) */}
-        <div className="hidden lg:flex items-center p-1 rounded-lg border gap-1"
-          style={{ background: isDark ? 'rgba(255,255,255,0.04)' : '#f0f0f0', borderColor: cardBorder }}>
-          <button
-            type="button"
-            onClick={() => setBoardMode('ziwei')}
-            className="px-3.5 py-1 rounded-md text-xs font-medium transition-all cursor-pointer"
-            style={{
-              background: boardMode === 'ziwei' ? (isDark ? 'rgba(212,168,67,0.2)' : '#ffffff') : 'transparent',
-              color: boardMode === 'ziwei' ? gold : textSub,
-              boxShadow: boardMode === 'ziwei' && !isDark ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
-              fontWeight: boardMode === 'ziwei' ? 600 : 400,
-            }}
+        {/* 顶部直达紫微斗数快捷按钮 */}
+        <div className="hidden lg:flex items-center gap-2">
+          <Link
+            href="/chart"
+            className="px-3 py-1 rounded-md text-xs font-medium border transition-all"
+            style={{ borderColor: cardBorder, color: textSub, background: isDark ? 'rgba(255,255,255,0.04)' : '#f3f4f6' }}
           >
-            ☯ 紫微斗数
-          </button>
-          <button
-            type="button"
-            onClick={() => setBoardMode('bazi')}
-            className="px-3.5 py-1 rounded-md text-xs font-medium transition-all cursor-pointer"
-            style={{
-              background: boardMode === 'bazi' ? (isDark ? 'rgba(212,168,67,0.2)' : '#ffffff') : 'transparent',
-              color: boardMode === 'bazi' ? gold : textSub,
-              boxShadow: boardMode === 'bazi' && !isDark ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
-              fontWeight: boardMode === 'bazi' ? 600 : 400,
-            }}
-          >
-            🔮 四柱八字
-          </button>
+            去紫微命盘 ☯
+          </Link>
         </div>
 
-        {/* 移动端视图切换 Tab（紫微 / 八字 / AI解读） */}
+        {/* 移动端视图切换 Tab（八字 / AI解读） */}
         <div className="flex lg:hidden items-center p-1 rounded-lg border gap-1"
           style={{ background: isDark ? 'rgba(255,255,255,0.04)' : '#f0f0f0', borderColor: cardBorder }}>
           <button
             type="button"
-            onClick={() => setMobileTab('ziwei')}
-            className="px-2.5 py-1 rounded-md text-xs font-medium transition-all"
-            style={{
-              background: mobileTab === 'ziwei' ? (isDark ? 'rgba(212,168,67,0.2)' : '#ffffff') : 'transparent',
-              color: mobileTab === 'ziwei' ? gold : textSub,
-              fontWeight: mobileTab === 'ziwei' ? 600 : 400,
-            }}
-          >
-            ☯ 紫微
-          </button>
-          <button
-            type="button"
             onClick={() => setMobileTab('bazi')}
-            className="px-2.5 py-1 rounded-md text-xs font-medium transition-all"
+            className="px-3 py-1 rounded-md text-xs font-medium transition-all"
             style={{
               background: mobileTab === 'bazi' ? (isDark ? 'rgba(212,168,67,0.2)' : '#ffffff') : 'transparent',
               color: mobileTab === 'bazi' ? gold : textSub,
               fontWeight: mobileTab === 'bazi' ? 600 : 400,
             }}
           >
-            🔮 八字
+            🔮 八字全息
           </button>
           <button
             type="button"
             onClick={() => setMobileTab('insight')}
-            className="px-2.5 py-1 rounded-md text-xs font-medium transition-all"
+            className="px-3 py-1 rounded-md text-xs font-medium transition-all"
             style={{
               background: mobileTab === 'insight' ? (isDark ? 'rgba(212,168,67,0.2)' : '#ffffff') : 'transparent',
               color: mobileTab === 'insight' ? gold : textSub,
               fontWeight: mobileTab === 'insight' ? 600 : 400,
             }}
           >
-            ✦ 解读
+            ✦ AI深度解读
           </button>
         </div>
 
-        {/* 右侧功能 */}
+        {/* 右侧切换主题 */}
         <div className="flex items-center gap-2">
           <button
             onClick={toggle}
@@ -350,108 +308,61 @@ export default function ChartPage() {
         </div>
       </nav>
 
-      {/* 命盘主体工作区：桌面双栏 / 手机单栏切换 */}
+      {/* 主体工作区 */}
       <main className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 py-3 sm:py-6">
         <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_380px] xl:grid-cols-[minmax(0,1fr)_420px] gap-5 items-start">
-          {/* 左栏：紫微 4x4 命盘 或 八字全息看板 */}
-          <div className="w-full min-w-0">
-            {/* 1. 紫微命盘视图 */}
-            <div className={`${(mobileTab === 'ziwei' || (!isMobileView() && boardMode === 'ziwei')) ? 'block' : 'hidden'}`}>
-              <ChartBoard
-                chart={chart}
-                onPalaceSelect={setSelectedPalace}
-              />
+          {/* 左栏：独立八字全息工作台 */}
+          <div className={`${mobileTab === 'bazi' ? 'block' : 'hidden'} lg:block w-full min-w-0`}>
+            <BaZiBoard bazi={bazi} />
 
-              {/* 底部快捷切换条 */}
-              <div className="mt-3 p-3 rounded-xl flex items-center justify-between border"
-                style={{ background: cardBg, borderColor: cardBorder }}>
-                <div className="text-xs pr-2" style={{ color: textSub }}>
-                  {selectedPalace ? (
-                    <span>已选中 <b style={{ color: gold }}>【{selectedPalace.name}】</b>，在右侧AI面板查看详细剖析</span>
-                  ) : (
-                    <span>已生成四柱八字元神图谱，随时可切换至八字视图</span>
-                  )}
-                </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  <button
-                    type="button"
-                    onClick={() => { setBoardMode('bazi'); setMobileTab('bazi'); }}
-                    className="px-2.5 py-1.5 rounded-lg text-xs font-medium cursor-pointer border"
-                    style={{ borderColor: cardBorder, color: textMain, background: isDark ? 'rgba(255,255,255,0.05)' : '#f8f8f8' }}
-                  >
-                    看八字 🔮
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setMobileTab('insight')}
-                    className="lg:hidden px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer"
-                    style={{ background: 'linear-gradient(135deg, #b08a2c, #d4a843)', color: '#08080a' }}
-                  >
-                    看解读 →
-                  </button>
-                </div>
+            {/* 底部联动提示条 */}
+            <div className="mt-4 p-3.5 rounded-xl flex items-center justify-between border"
+              style={{ background: cardBg, borderColor: cardBorder }}>
+              <div className="text-xs pr-2" style={{ color: textSub }}>
+                可随时在紫微斗数十二宫罗盘与八字全息矩阵之间交叉比对
               </div>
-            </div>
-
-            {/* 2. 生辰八字视图 */}
-            <div className={`${(mobileTab === 'bazi' || (!isMobileView() && boardMode === 'bazi')) ? 'block' : 'hidden'}`}>
-              <BaZiBoard bazi={bazi} />
-
-              {/* 八字视图底部快捷切换条 */}
-              <div className="mt-3 p-3 rounded-xl flex items-center justify-between border"
-                style={{ background: cardBg, borderColor: cardBorder }}>
-                <div className="text-xs pr-2" style={{ color: textSub }}>
-                  日主【{bazi.dayMaster.stemCn}{bazi.dayMaster.elementCn} · {bazi.dayMaster.archetypeCn}】，可切回紫微斗数查十二宫
-                </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  <button
-                    type="button"
-                    onClick={() => { setBoardMode('ziwei'); setMobileTab('ziwei'); }}
-                    className="px-2.5 py-1.5 rounded-lg text-xs font-medium cursor-pointer border"
-                    style={{ borderColor: cardBorder, color: textMain, background: isDark ? 'rgba(255,255,255,0.05)' : '#f8f8f8' }}
-                  >
-                    看紫微 ☯
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setMobileTab('insight')}
-                    className="lg:hidden px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer"
-                    style={{ background: 'linear-gradient(135deg, #b08a2c, #d4a843)', color: '#08080a' }}
-                  >
-                    看解读 →
-                  </button>
-                </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <Link
+                  href="/chart"
+                  className="px-3 py-1.5 rounded-lg text-xs font-medium border"
+                  style={{ borderColor: cardBorder, color: textMain, background: isDark ? 'rgba(255,255,255,0.05)' : '#f8f8f8' }}
+                >
+                  查看紫微斗数 ☯
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => setMobileTab('insight')}
+                  className="lg:hidden px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer"
+                  style={{ background: 'linear-gradient(135deg, #b08a2c, #d4a843)', color: '#08080a' }}
+                >
+                  查看解读 →
+                </button>
               </div>
             </div>
           </div>
 
-          {/* 右栏：AI 命理解读面板（双擎合参） */}
+          {/* 右栏：AI 深度解读面板 */}
           <div className={`${mobileTab === 'insight' ? 'block' : 'hidden'} lg:block w-full min-w-0 lg:sticky lg:top-[68px]`}>
-            {/* 移动端返回命盘快捷按键 */}
+            {/* 移动端返回八字快捷键 */}
             <div className="lg:hidden mb-2 flex items-center justify-between px-1">
-              <span className="text-xs font-medium" style={{ color: gold }}>✦ 东方双擎 · AI深度解盘</span>
+              <span className="text-xs font-medium" style={{ color: gold }}>✦ 八字元神与双擎合参解读</span>
               <button
                 type="button"
-                onClick={() => setMobileTab('ziwei')}
+                onClick={() => setMobileTab('bazi')}
                 className="text-xs cursor-pointer"
                 style={{ color: textSub }}
               >
-                ← 返回命盘
+                ← 返回八字
               </button>
             </div>
             <div style={{ height: 'calc(100vh - 120px)', minHeight: '520px', maxHeight: '780px' }}>
-              <InsightPanel chart={chart} selectedPalace={selectedPalace} bazi={bazi} />
+              <InsightPanel chart={chart} bazi={bazi} />
             </div>
           </div>
         </div>
       </main>
     </div>
   );
-}
-
-function isMobileView(): boolean {
-  if (typeof window === 'undefined') return false;
-  return window.innerWidth < 1024;
 }
 
 function NavItem({ href, children, active, isDark }: { href: string; children: React.ReactNode; active: boolean; isDark: boolean }) {

@@ -2,6 +2,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { ZiweiChart, Palace } from '@/lib/ziwei/types';
+import type { BaZiChart } from '@/lib/bazi/types';
 import type { TimeView } from './TimeNav';
 
 interface Message {
@@ -20,18 +21,35 @@ interface InsightPanelProps {
   chart: ZiweiChart;
   selectedPalace?: Palace | null;
   selectedSiHua?: SelectedSiHua | null;
+  bazi?: BaZiChart | null;
 }
 
 const TOPICS = [
+  { key: 'dual_fusion', label: '双擎合参' },
   { key: 'overview',     label: '命格' },
-  { key: 'love',        label: '感情' },
+  { key: 'bazi_deep',    label: '八字' },
   { key: 'career',      label: '事业' },
   { key: 'wealth',      label: '财运' },
+  { key: 'love',        label: '感情' },
   { key: 'health',      label: '健康' },
   { key: 'personality', label: '性格' },
 ] as const;
 
 const TOPIC_PROMPTS: Record<string, string> = {
+  dual_fusion: `请基于四柱八字与紫微斗数双引擎进行深度交叉合参分析，按以下结构输出：
+
+**【能量底色与灵魂原型】**
+结合八字日主五行与紫微命宫主星，透析命主的内在心性与外在人格表象。
+
+**【天赋驱动与事业变现】**
+结合八字十神格局（如偏财、七杀、食伤）与紫微官禄宫、财帛宫主星四化，分析最适宜的天赋变现路径。
+
+**【人生周期与战略时机】**
+比对八字十年大运与紫微十年大限流宫，推演当下的宏观战略节奏（进攻拓荒 vs 蓄能沉淀）。
+
+**【五行调候与生活进化建议】**
+结合八字喜用神与紫微化忌课题，给出具体的能量补足与心理整合建议。`,
+
   overview: `请生成命格总览，按以下结构输出：
 
 **【命格定性】**
@@ -48,6 +66,20 @@ const TOPIC_PROMPTS: Record<string, string> = {
 
 **【优势与注意】**
 命盘天赋优势，以及需要注意的风险或功课。`,
+
+  bazi_deep: `请深度解析四柱八字元神格局，按以下结构输出：
+
+**【四柱元神格局】**
+日主天干本质与现代心理原型定调。
+
+**【十神驱动力剖析】**
+四柱十神（财官印食伤）的社会互动与动力学分析。
+
+**【五行能量调配】**
+五行强弱分布与喜用神调候建议。
+
+**【岁月流转与发展建议】**
+当前十年大运的主导课题与战略应对。`,
 
   love: `请深度分析感情婚姻运，按以下结构输出：
 
@@ -182,7 +214,7 @@ function AiContent({ text, streaming }: { text: string; streaming?: boolean }) {
   );
 }
 
-export default function InsightPanel({ chart, selectedPalace, selectedSiHua }: InsightPanelProps) {
+export default function InsightPanel({ chart, selectedPalace, selectedSiHua, bazi }: InsightPanelProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -279,7 +311,7 @@ ${selectedSiHua.starName}化${selectedSiHua.siHua}落在【${palaceName}】，�
       const res = await fetch('/api/interpret', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ chart, messages: apiMessages }),
+        body: JSON.stringify({ chart, bazi, messages: apiMessages }),
       });
       if (!res.ok) throw new Error('请求失败');
       if (!res.body) throw new Error('无响应流');
