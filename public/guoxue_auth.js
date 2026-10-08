@@ -423,8 +423,39 @@
     }));
   }
 
-  // 初始化 Google Identity Services
+  const isCentralAuthHost = window.location.hostname === 'fangji-2oh.pages.dev' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+  let ssoListenerBound = false;
+
+  // 绑定跨窗口 SSO 授权消息监听
+  function bindSsoMessageListener() {
+    if (ssoListenerBound) return;
+    ssoListenerBound = true;
+    window.addEventListener('message', async (event) => {
+      if (!event.data || event.data.type !== 'GUOXUE_SSO_SUCCESS') return;
+      const { token, user } = event.data;
+      if (token) {
+        authToken = token;
+        localStorage.setItem(STORAGE_TOKEN_KEY, token);
+        localStorage.setItem('fangji_token', token);
+        if (user) {
+          currentUser = user;
+          renderWidget();
+          closeMemberModal();
+          updateSsoLinks();
+          showToast(`欢迎回来，${currentUser.name || '同修'}！`);
+          dispatchAuthChange(true);
+        } else {
+          await fetchCurrentUser();
+          closeMemberModal();
+          showToast('登录成功！');
+        }
+      }
+    });
+  }
+
+  // 初始化 Google Identity Services (仅在中央鉴权主域初始化，防止跨域 origin_mismatch)
   function initGoogleGsi() {
+    if (!isCentralAuthHost) return;
     if (window.google && window.google.accounts && window.google.accounts.id) {
       setupGoogleAccounts();
       return;
@@ -505,18 +536,49 @@
     }
   }
 
-  // 触发 Google 登录
+  // 触发 Google 登录 (子域自动弹窗/跳转至 fangji-2oh.pages.dev 免配置 Google 白名单)
   function triggerGoogleLogin() {
-    if (window.google && window.google.accounts && window.google.accounts.id) {
-      const gBtn = document.querySelector('#gx-google-hidden-wrap div[role=button], #gx-google-hidden-wrap iframe');
-      if (gBtn) {
-        try { gBtn.click(); return; } catch(e){}
+    if (isCentralAuthHost) {
+      if (window.google && window.google.accounts && window.google.accounts.id) {
+        const gBtn = document.querySelector('#gx-google-hidden-wrap div[role=button], #gx-google-hidden-wrap iframe');
+        if (gBtn) {
+          try { gBtn.click(); return; } catch(e){}
+        }
+        try {
+          window.google.accounts.id.prompt();
+        } catch(e){}
+      } else {
+        showToast('Google 服务加载中，请稍候点击...');
       }
-      try {
-        window.google.accounts.id.prompt();
-      } catch(e){}
+      return;
+    }
+
+    // 子域名环境：唤起 fangji-2oh.pages.dev SSO 授权通道
+    bindSsoMessageListener();
+    const returnUrl = window.location.href;
+    const ssoUrl = `https://fangji-2oh.pages.dev/sso-auth.html?return_url=${encodeURIComponent(returnUrl)}`;
+
+    const isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    if (isMobile) {
+      window.location.href = ssoUrl;
+      return;
+    }
+
+    const w = 480;
+    const h = 640;
+    const left = window.screenX + Math.max(0, (window.outerWidth - w) / 2);
+    const top = window.screenY + Math.max(0, (window.outerHeight - h) / 2);
+    const popup = window.open(
+      ssoUrl,
+      'guoxue_sso_window',
+      `width=${w},height=${h},top=${top},left=${left},status=no,toolbar=no,menubar=no,location=yes,resizable=yes`
+    );
+
+    if (!popup || popup.closed || typeof popup.closed === 'undefined') {
+      // 浏览器若强制拦截弹窗，无缝降级为页面重定向
+      window.location.href = ssoUrl;
     } else {
-      showToast('Google 服务加载中，请稍候点击...');
+      showToast('正在打开 Google 统一授权窗口...');
     }
   }
 
@@ -786,7 +848,11 @@
     checkUrlSsoToken();
     createMemberModal();
     fetchCurrentUser();
-    initGoogleGsi();
+    if (isCentralAuthHost) {
+      initGoogleGsi();
+    } else {
+      bindSsoMessageListener();
+    }
   }
 
   if (document.readyState === 'loading') {
@@ -808,6 +874,12 @@
     triggerGoogleLogin,
     logout,
     activateMember: activateModuleVip,
+    setUser: (u) => {
+      currentUser = u;
+      renderWidget();
+      renderMemberModalBody();
+      updateSsoLinks();
+    },
     refresh: fetchCurrentUser
   };
 
