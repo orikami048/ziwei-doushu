@@ -12,6 +12,7 @@ import type { BaZiChart } from '@/lib/bazi/types';
 import { useHistory, type HistoryEntry } from '@/lib/ziwei/history';
 import { formToBirthInfo } from '@/lib/ziwei/share';
 import { useTheme } from '@/components/ThemeProvider';
+import ViralModal from '@/components/viral/ViralModal';
 
 /**
  * 命盘页 —— 全球化东方命理双引擎（紫微斗数 + 四柱八字）
@@ -54,6 +55,8 @@ export default function ChartPage() {
   const [boardMode, setBoardMode] = useState<'ziwei' | 'bazi'>('ziwei');
   // 移动端视图切换 Tab：'ziwei' | 'bazi' | 'insight'
   const [mobileTab, setMobileTab] = useState<'ziwei' | 'bazi' | 'insight'>('ziwei');
+  // 3:4 社交裂变爆款海报弹窗状态
+  const [viralModalOpen, setViralModalOpen] = useState(false);
 
   const { history, save, clear } = useHistory();
   const formRef = useRef<BirthFormState | null>(null);
@@ -336,6 +339,21 @@ export default function ChartPage() {
         {/* 右侧功能 */}
         <div className="flex items-center gap-2">
           <button
+            type="button"
+            onClick={() => setViralModalOpen(true)}
+            aria-label="3:4 爆款报告与赛博经方签"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer shadow-md hover:opacity-95 shrink-0"
+            style={{
+              background: 'linear-gradient(135deg, #e2c08d 0%, #b08a2c 100%)',
+              color: '#1a1405',
+              border: '1px solid rgba(226,192,141,0.6)',
+            }}
+          >
+            <span>✨</span>
+            <span className="hidden sm:inline">3:4 爆款报告 / 经方签</span>
+            <span className="sm:hidden">爆款卡</span>
+          </button>
+          <button
             onClick={toggle}
             aria-label="切换主题"
             className="text-[11px] px-2.5 py-1 rounded-full border transition-colors cursor-pointer"
@@ -375,6 +393,18 @@ export default function ChartPage() {
                 <div className="flex items-center gap-2 shrink-0">
                   <button
                     type="button"
+                    onClick={() => setViralModalOpen(true)}
+                    className="px-2.5 py-1.5 rounded-lg text-xs font-bold cursor-pointer border shadow-sm"
+                    style={{
+                      background: 'linear-gradient(135deg, rgba(226,192,141,0.2) 0%, rgba(176,138,44,0.15) 100%)',
+                      borderColor: 'rgba(212,168,67,0.4)',
+                      color: gold,
+                    }}
+                  >
+                    ✨ 3:4 灵魂卡
+                  </button>
+                  <button
+                    type="button"
                     onClick={() => { setBoardMode('bazi'); setMobileTab('bazi'); }}
                     className="px-2.5 py-1.5 rounded-lg text-xs font-medium cursor-pointer border"
                     style={{ borderColor: cardBorder, color: textMain, background: isDark ? 'rgba(255,255,255,0.05)' : '#f8f8f8' }}
@@ -404,6 +434,18 @@ export default function ChartPage() {
                   日主【{bazi.dayMaster.stemCn}{bazi.dayMaster.elementCn} · {bazi.dayMaster.archetypeCn}】，可切回紫微斗数查十二宫
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setViralModalOpen(true)}
+                    className="px-2.5 py-1.5 rounded-lg text-xs font-bold cursor-pointer border shadow-sm"
+                    style={{
+                      background: 'linear-gradient(135deg, rgba(226,192,141,0.2) 0%, rgba(176,138,44,0.15) 100%)',
+                      borderColor: 'rgba(212,168,67,0.4)',
+                      color: gold,
+                    }}
+                  >
+                    ✨ 3:4 灵魂卡
+                  </button>
                   <button
                     type="button"
                     onClick={() => { setBoardMode('ziwei'); setMobileTab('ziwei'); }}
@@ -445,6 +487,13 @@ export default function ChartPage() {
           </div>
         </div>
       </main>
+
+      {/* 3:4 社交裂变爆款海报弹窗 */}
+      <ViralModal
+        open={viralModalOpen}
+        onClose={() => setViralModalOpen(false)}
+        chart={chart}
+      />
     </div>
   );
 }
