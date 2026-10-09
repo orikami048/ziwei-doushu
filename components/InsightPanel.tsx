@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import type { ZiweiChart, Palace } from '@/lib/ziwei/types';
 import type { BaZiChart } from '@/lib/bazi/types';
 import type { TimeView } from './TimeNav';
+import { generateLocalInterpretation } from '@/lib/ziwei/local-interpret';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -342,7 +343,30 @@ ${selectedSiHua.starName}化${selectedSiHua.siHua}落在【${palaceName}】，�
         }
       }
     } catch {
-      setMessages(prev => [...prev, { role: 'assistant', content: '解读失败，请稍后重试。' }]);
+      // 网络或无 API KEY 时，优雅降级为本地离线知识库合成推演
+      const latestUserPrompt = apiMessages[apiMessages.length - 1]?.content || '';
+      const localText = generateLocalInterpretation(chart, bazi ?? undefined, latestUserPrompt);
+      
+      setMessages(prev => {
+        const last = prev[prev.length - 1];
+        if (last && last.role === 'assistant' && !last.content) {
+          // 正在打字的空助手消息，直接复用
+          return prev;
+        }
+        return [...prev, { role: 'assistant', content: '' }];
+      });
+
+      // 模拟丝滑打字流输出
+      const chunkSize = 20;
+      for (let i = 0; i < localText.length; i += chunkSize) {
+        const currentSlice = localText.slice(0, i + chunkSize);
+        setMessages(prev => {
+          const updated = [...prev];
+          updated[updated.length - 1] = { role: 'assistant', content: currentSlice };
+          return updated;
+        });
+        await new Promise(r => setTimeout(r, 20));
+      }
     } finally {
       setLoading(false);
       loadingRef.current = false;

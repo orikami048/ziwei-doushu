@@ -140,17 +140,17 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
 
   // ─── 样式变量（白色简洁风，参考新版 UI） ─────────────────
   const cardBg = isDark ? 'rgba(13,22,42,0.92)' : '#ffffff';
-  const cardBorder = isDark ? 'rgba(255,255,255,0.10)' : '#e8e8e8';
-  const labelClr = isDark ? 'rgba(185,200,220,0.9)' : '#8a8a8a';
-  const inputBg = isDark ? 'rgba(255,255,255,0.06)' : '#fafafa';
-  const inputBorder = isDark ? 'rgba(255,255,255,0.16)' : '#e2e2e2';
-  const inputClr = isDark ? '#e8eef8' : '#222222';
-  const focusBorder = isDark ? 'rgba(212,168,67,0.55)' : '#c8a24a';
+  const cardBorder = isDark ? 'rgba(255,255,255,0.14)' : '#e8e8e8';
+  const labelClr = isDark ? '#cbd5e1' : '#4b5563';
+  const inputBg = isDark ? '#0f172a' : '#ffffff';
+  const inputBorder = isDark ? 'rgba(255,255,255,0.22)' : '#d1d5db';
+  const inputClr = isDark ? '#f8fafc' : '#0f172a';
+  const focusBorder = isDark ? '#f59e0b' : '#c8a24a';
   const errorClr = isDark ? '#f87171' : '#dc2626';
-  const panelBg = isDark ? 'rgba(255,255,255,0.04)' : '#f7f7f7';
-  const panelBorder = isDark ? 'rgba(255,255,255,0.08)' : '#eeeeee';
-  const goldText = isDark ? '#d4a843' : '#b08a2c';
-  const mutedClr = isDark ? 'rgba(165,185,210,0.7)' : '#9a9a9a';
+  const panelBg = isDark ? '#1e293b' : '#f3f4f6';
+  const panelBorder = isDark ? 'rgba(255,255,255,0.15)' : '#e5e7eb';
+  const goldText = isDark ? '#fcd34d' : '#b08a2c';
+  const mutedClr = isDark ? '#94a3b8' : '#6b7280';
 
   const inputStyle = {
     background: inputBg,
@@ -164,7 +164,16 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
     transition: 'border-color 0.2s, box-shadow 0.2s',
   } as React.CSSProperties;
 
+  const selectStyle = {
+    ...inputStyle,
+    colorScheme: isDark ? 'dark' : 'light',
+    backgroundColor: inputBg,
+    color: inputClr,
+    cursor: 'pointer',
+  } as React.CSSProperties;
+
   const errorInputStyle = { ...inputStyle, borderColor: errorClr };
+  const errorSelectStyle = { ...selectStyle, borderColor: errorClr };
 
   function FieldError({ msg }: { msg: string }) {
     return (
@@ -268,12 +277,12 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
               <select
                 value={form.year}
                 onChange={e => { setForm({ ...form, year: e.target.value }); setTouched(t => ({ ...t, year: true })); }}
-                style={showErr('year') && errors.year ? errorInputStyle : inputStyle}
+                style={showErr('year') && errors.year ? errorSelectStyle : selectStyle}
                 required
               >
-                <option value="">年份</option>
+                <option value="" style={{ backgroundColor: isDark ? '#0f172a' : '#ffffff', color: isDark ? '#94a3b8' : '#6b7280' }}>年份</option>
                 {Array.from({ length: 127 }, (_, i) => 2026 - i).map(yr => (
-                  <option key={yr} value={String(yr)}>{yr}</option>
+                  <option key={yr} value={String(yr)} style={{ backgroundColor: isDark ? '#0f172a' : '#ffffff', color: isDark ? '#f8fafc' : '#0f172a' }}>{yr}</option>
                 ))}
               </select>
               <FieldError msg={showErr('year') ? errors.year : ''} />
@@ -282,12 +291,12 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
               <select
                 value={form.month}
                 onChange={e => { setForm({ ...form, month: e.target.value }); setTouched(t => ({ ...t, month: true })); }}
-                style={showErr('month') && errors.month ? errorInputStyle : inputStyle}
+                style={showErr('month') && errors.month ? errorSelectStyle : selectStyle}
                 required
               >
-                <option value="">月份</option>
+                <option value="" style={{ backgroundColor: isDark ? '#0f172a' : '#ffffff', color: isDark ? '#94a3b8' : '#6b7280' }}>月份</option>
                 {Array.from({ length: 12 }, (_, i) => i + 1).map(mo => (
-                  <option key={mo} value={String(mo)}>{mo}</option>
+                  <option key={mo} value={String(mo)} style={{ backgroundColor: isDark ? '#0f172a' : '#ffffff', color: isDark ? '#f8fafc' : '#0f172a' }}>{mo}</option>
                 ))}
               </select>
               <FieldError msg={showErr('month') ? errors.month : ''} />
@@ -296,12 +305,12 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
               <select
                 value={form.day}
                 onChange={e => { setForm({ ...form, day: e.target.value }); setTouched(t => ({ ...t, day: true })); }}
-                style={showErr('day') && errors.day ? errorInputStyle : inputStyle}
+                style={showErr('day') && errors.day ? errorSelectStyle : selectStyle}
                 required
               >
-                <option value="">日期</option>
+                <option value="" style={{ backgroundColor: isDark ? '#0f172a' : '#ffffff', color: isDark ? '#94a3b8' : '#6b7280' }}>日期</option>
                 {Array.from({ length: 31 }, (_, i) => i + 1).map(dy => (
-                  <option key={dy} value={String(dy)}>{dy}</option>
+                  <option key={dy} value={String(dy)} style={{ backgroundColor: isDark ? '#0f172a' : '#ffffff', color: isDark ? '#f8fafc' : '#0f172a' }}>{dy}</option>
                 ))}
               </select>
               <FieldError msg={showErr('day') ? errors.day : ''} />
@@ -317,26 +326,26 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
           <select
             value={form.province}
             onChange={e => handleProvince(e.target.value)}
-            style={inputStyle}
+            style={selectStyle}
             onFocus={e => { e.target.style.borderColor = focusBorder; }}
             onBlur={e => { e.target.style.borderColor = inputBorder; }}
           >
-            <option value="">选择出生地</option>
+            <option value="" style={{ backgroundColor: isDark ? '#0f172a' : '#ffffff', color: isDark ? '#94a3b8' : '#6b7280' }}>选择出生地</option>
             {PROVINCES.map(p => (
-              <option key={p.name} value={p.name}>{p.name}</option>
+              <option key={p.name} value={p.name} style={{ backgroundColor: isDark ? '#0f172a' : '#ffffff', color: isDark ? '#f8fafc' : '#0f172a' }}>{p.name}</option>
             ))}
           </select>
           <select
             value={form.city}
             onChange={e => handleCity(e.target.value)}
             disabled={!form.province}
-            style={{ ...inputStyle, opacity: form.province ? 1 : 0.45 }}
+            style={{ ...selectStyle, opacity: form.province ? 1 : 0.45 }}
             onFocus={e => { e.target.style.borderColor = focusBorder; }}
             onBlur={e => { e.target.style.borderColor = inputBorder; }}
           >
-            <option value="">{form.province ? '城市' : '先选省份'}</option>
+            <option value="" style={{ backgroundColor: isDark ? '#0f172a' : '#ffffff', color: isDark ? '#94a3b8' : '#6b7280' }}>{form.province ? '城市' : '先选省份'}</option>
             {cityList.map(c => (
-              <option key={c.name} value={c.name}>{c.name}</option>
+              <option key={c.name} value={c.name} style={{ backgroundColor: isDark ? '#0f172a' : '#ffffff', color: isDark ? '#f8fafc' : '#0f172a' }}>{c.name}</option>
             ))}
           </select>
         </div>
@@ -373,19 +382,19 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
             <select
               value={form.clockHour}
               onChange={e => setForm({ ...form, clockHour: e.target.value })}
-              style={inputStyle}
+              style={selectStyle}
             >
               {Array.from({ length: 24 }, (_, i) => i).map(h => (
-                <option key={h} value={String(h)}>{h.toString().padStart(2, '0')} 时</option>
+                <option key={h} value={String(h)} style={{ backgroundColor: isDark ? '#0f172a' : '#ffffff', color: isDark ? '#f8fafc' : '#0f172a' }}>{h.toString().padStart(2, '0')} 时</option>
               ))}
             </select>
             <select
               value={form.clockMinute}
               onChange={e => setForm({ ...form, clockMinute: e.target.value })}
-              style={inputStyle}
+              style={selectStyle}
             >
               {Array.from({ length: 60 }, (_, i) => i).map(min => (
-                <option key={min} value={String(min)}>{min.toString().padStart(2, '0')} 分</option>
+                <option key={min} value={String(min)} style={{ backgroundColor: isDark ? '#0f172a' : '#ffffff', color: isDark ? '#f8fafc' : '#0f172a' }}>{min.toString().padStart(2, '0')} 分</option>
               ))}
             </select>
           </div>

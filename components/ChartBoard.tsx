@@ -153,32 +153,32 @@ export default function ChartBoard({ chart, onStarSelect, onPalaceSelect, onSiHu
           className="flex flex-col items-center justify-center p-1.5 sm:p-4 gap-1 sm:gap-2.5"
           style={{ gridRow: '2 / 4', gridColumn: '2 / 4', background: 'var(--t-bg)' }}
         >
-          <div className="text-2xl sm:text-5xl select-none leading-none" style={{ color: 'var(--t-gold)', opacity: 0.12, filter: 'drop-shadow(0 0 12px rgba(180,120,30,0.15))' }}>
+          <div className="text-2xl sm:text-5xl select-none leading-none" style={{ color: 'var(--t-gold)', opacity: 0.35, filter: 'drop-shadow(0 0 14px rgba(251,191,36,0.3))' }}>
             ☯
           </div>
 
           <div className="text-center space-y-0.5 sm:space-y-1">
-            <div className="text-[8px] sm:text-[9px] tracking-[0.2em] sm:tracking-[0.3em] font-medium" style={{ color: 'var(--t-gold)' }}>紫微斗数</div>
-            <div className="text-[8px] sm:text-[10px] space-y-0.5" style={{ color: 'var(--t-faint)' }}>
-              <div>命宫 <span style={{ color: 'var(--t-gold)', opacity: 0.7 }}>{BRANCHES[chart.mingGongBranch]}</span></div>
-              <div>身宫 <span className="text-sky-500/70">{BRANCHES[chart.shenGongBranch]}</span></div>
-              <div className="text-[8px] sm:text-[9px]" style={{ color: 'var(--t-gold)', opacity: 0.75 }}>{chart.wuxingJuName}</div>
+            <div className="text-[9px] sm:text-[11px] tracking-[0.2em] sm:tracking-[0.3em] font-bold" style={{ color: 'var(--t-gold)' }}>紫微斗数</div>
+            <div className="text-[9px] sm:text-[11px] space-y-0.5 font-medium" style={{ color: 'var(--t-faint)' }}>
+              <div>命宫 <span className="font-bold text-amber-300">{BRANCHES[chart.mingGongBranch]}</span></div>
+              <div>身宫 <span className="font-bold text-sky-300">{BRANCHES[chart.shenGongBranch]}</span></div>
+              <div className="text-[9px] sm:text-[10px] font-bold text-amber-300">{chart.wuxingJuName}</div>
             </div>
           </div>
 
           {chart.currentDaXianIndex >= 0 && (() => {
             const dx = chart.daXians[chart.currentDaXianIndex];
             return (
-              <div className="border border-purple-500/30 rounded-lg px-1.5 py-0.5 sm:px-3 sm:py-1.5 text-center"
-                style={{ background: 'rgba(147,51,234,0.06)' }}>
-                <div className="text-[7px] sm:text-[8px] text-purple-500/80 mb-0.5 tracking-wider">当前大限</div>
-                <div className="text-[10px] sm:text-[12px] text-purple-400 font-medium tabular-nums">{dx.startAge}–{dx.endAge}岁</div>
-                <div className="text-[8px] sm:text-[9px] text-purple-500/60">{dx.palaceName}</div>
+              <div className="border border-purple-400/40 rounded-lg px-2 py-0.5 sm:px-3 sm:py-1.5 text-center"
+                style={{ background: 'rgba(147,51,234,0.12)' }}>
+                <div className="text-[7.5px] sm:text-[8.5px] text-purple-300 mb-0.5 tracking-wider font-semibold">当前大限</div>
+                <div className="text-[10.5px] sm:text-[12.5px] text-purple-200 font-bold tabular-nums">{dx.startAge}–{dx.endAge}岁</div>
+                <div className="text-[8.5px] sm:text-[9.5px] text-purple-300 font-medium">{dx.palaceName}</div>
               </div>
             );
           })()}
 
-          <div className="text-[7px] sm:text-[8px] text-center leading-relaxed font-mono" style={{ color: 'var(--t-faint)', opacity: 0.75 }}>
+          <div className="text-[8px] sm:text-[9px] text-center leading-relaxed font-mono font-medium text-slate-300">
             {chart.lunarInfo.lunarYear}·{chart.lunarInfo.isLeapMonth ? '闰' : ''}
             {chart.lunarInfo.lunarMonth}·{chart.lunarInfo.lunarDay}
           </div>

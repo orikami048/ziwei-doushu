@@ -93,10 +93,10 @@ export default function PalaceCell({
       {/* 大限年龄 */}
       {daXianAge && (
         <div className={clsx(
-          'absolute top-0.5 right-1 sm:top-1 sm:right-1 text-[8px] sm:text-[9px] font-mono tabular-nums',
-          isCurrentDaXian ? 'text-purple-400' : ''
+          'absolute top-0.5 right-1 sm:top-1 sm:right-1 text-[8px] sm:text-[9px] font-mono tabular-nums font-semibold',
+          isCurrentDaXian ? 'text-purple-300' : ''
         )}
-          style={!isCurrentDaXian ? { color: 'var(--t-faint)', opacity: 0.75 } : undefined}
+          style={!isCurrentDaXian ? { color: 'var(--t-faint)' } : undefined}
         >
           {daXianAge[0]}–{daXianAge[1]}
         </div>
@@ -104,28 +104,28 @@ export default function PalaceCell({
 
       {/* 宫名行 */}
       <div className="flex items-center gap-0.5 sm:gap-1 mb-0.5 pr-6 sm:pr-8">
-        <span className={clsx('text-[9px] sm:text-[10px] font-medium tracking-wide',
-          isMingGong ? 'text-amber-500' : isShenGong ? 'text-sky-500' : ''
+        <span className={clsx('text-[9.5px] sm:text-[10.5px] font-bold tracking-wide',
+          isMingGong ? 'text-amber-400' : isShenGong ? 'text-sky-300' : ''
         )}
           style={!isMingGong && !isShenGong ? { color: 'var(--t-faint)' } : undefined}
         >
           {name}
         </span>
         {isMingGong && (
-          <span className="text-[6.5px] sm:text-[7px] text-amber-500/80 border border-amber-500/30 px-0.5 rounded leading-tight">命</span>
+          <span className="text-[6.5px] sm:text-[7px] text-amber-300 border border-amber-400/50 px-0.5 rounded leading-tight font-bold">命</span>
         )}
         {isShenGong && (
-          <span className="text-[6.5px] sm:text-[7px] text-sky-500/80 border border-sky-500/30 px-0.5 rounded leading-tight">身</span>
+          <span className="text-[6.5px] sm:text-[7px] text-sky-300 border border-sky-400/50 px-0.5 rounded leading-tight font-bold">身</span>
         )}
       </div>
 
       {/* 干支 */}
-      <div className="text-[8px] sm:text-[9px] font-mono mb-0.5 sm:mb-1" style={{ color: 'var(--t-faint)', opacity: 0.75 }}>{ganzhi}</div>
+      <div className="text-[8.5px] sm:text-[9.5px] font-mono mb-0.5 sm:mb-1 font-semibold" style={{ color: 'var(--t-faint)' }}>{ganzhi}</div>
 
       {/* 主星 */}
       <div className="flex flex-col gap-0.5 flex-1">
         {majorStars.length === 0 && (
-          <span className="text-[9px] sm:text-[10px] italic" style={{ color: 'var(--t-faint)', opacity: 0.6 }}>空宫</span>
+          <span className="text-[9px] sm:text-[10px] italic font-medium" style={{ color: 'var(--t-faint)', opacity: 0.8 }}>空宫</span>
         )}
         {majorStars.map((star) => {
           const overlaySiHua = overlayStarSiHua?.[star.name];
@@ -136,8 +136,8 @@ export default function PalaceCell({
               onClick={e => { e.stopPropagation(); onStarClick?.(star); }}
             >
               <span className={clsx(
-                'text-[11px] sm:text-[13px] leading-tight font-bold tracking-tight cursor-pointer hover:brightness-125 transition-all',
-                star.brightness === 'bright' ? 'text-amber-300' : star.brightness === 'dim' ? 'text-amber-700/80' : 'text-amber-500',
+                'text-[11.5px] sm:text-[13.5px] leading-tight font-extrabold tracking-tight cursor-pointer hover:brightness-125 transition-all drop-shadow-sm',
+                star.brightness === 'bright' ? 'text-amber-300' : star.brightness === 'dim' ? 'text-amber-400' : 'text-amber-300',
               )}>
                 {star.name}
               </span>
@@ -164,7 +164,7 @@ export default function PalaceCell({
           {luckyStars.map(s => {
             const overlaySiHua = overlayStarSiHua?.[s.name];
             return (
-              <span key={s.name} className="inline-flex items-center text-[9px] text-sky-500/70 leading-tight">
+              <span key={s.name} className="inline-flex items-center text-[9px] text-sky-300 font-semibold leading-tight">
                 {s.name}
                 {s.siHua && <SiHuaBadge siHua={s.siHua} />}
                 {overlaySiHua && (
@@ -188,7 +188,7 @@ export default function PalaceCell({
       {shaStars.length > 0 && (
         <div className="flex flex-wrap gap-x-1">
           {shaStars.map(s => (
-            <span key={s.name} className="text-[9px] text-red-500/60 leading-tight">
+            <span key={s.name} className="text-[9px] text-rose-400 font-semibold leading-tight">
               {s.name}{s.siHua && <SiHuaBadge siHua={s.siHua} />}
             </span>
           ))}
